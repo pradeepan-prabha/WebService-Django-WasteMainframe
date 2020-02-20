@@ -124,7 +124,7 @@ def Databasecon(data):
 
 
 @api_view(["GET"])
-def imageDB(data1):
+def imageprocessfun(data1):
     try:
         received_json_data = json.loads(data1.body)
         # print(str(received_json_data))
@@ -194,12 +194,10 @@ def imageDB(data1):
 
         sql_product_details = """insert into waste_product_details(refid, waste_prod_name, waste_prod_address, other) 
         values(%s,%s,%s,%s);"""
-        # sql_location_details ="""insert into waste_location_details(refid,latitude,longitude,country,state,district,region,city,street,pincode)
-        # values(1,12.1231234,34.123313,'india','tamilnadu','kanchipuram','dfse','asdd','sdfe',601239);"""
+
         sql_location_details = """insert into waste_location_details(refid,latitude,longitude,country,state,district,region,city,street,pincode) 
         values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);"""
 
-        print(sql_max_val)
 
         try:
             cursor.execute(sql_max_val)
@@ -213,7 +211,6 @@ def imageDB(data1):
                 else:
                     refid_val = row[0] + 1
 
-            print(refid_val)
 
             cursor.execute(sql_waste_details, (
                 str(refid_val), str(waste_type_val), str(loc_type_val), str(img_raw_val), str(img_processed_val),
@@ -226,8 +223,8 @@ def imageDB(data1):
                                                   str(country_val), str(state_val), str(district_val), str(region_val),
                                                   str(city_val), str(street_val), str(pincode_val)))
 
-            print(sql_waste_details)
-            print(sql_product_details)
+            # print(sql_waste_details)
+            # print(sql_product_details)
             # Commit your changes in the database
             db.commit()
         except:
@@ -247,12 +244,12 @@ def imageDB(data1):
         db.close()
 
         # return JsonResponse("done", safe=False)
-        return JsonResponse(sql_waste_details, safe=False)
+        return JsonResponse(({"statustype": "Success","statusmessage": "Submited Successfull","statuscode": "200"}), safe=False)
     except ValueError as e:
-        return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(( {"statustype": "Failure","statusmessage": "Submited data is failure","statuscode": "400"}), safe=False)
 
     except ValueError as e:
-        return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(( {"statustype": "Failure","statusmessage": "Submited data is failure","statuscode": "400"}), safe=False)
 
 
 def imageProcess(img_base_64, timestamp):

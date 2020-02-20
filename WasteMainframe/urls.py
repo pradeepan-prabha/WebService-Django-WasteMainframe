@@ -23,6 +23,6 @@ from WebEntry import views
 urlpatterns = [
     # url(r'^admin/', admin.site.urls),
     url(r'^jsonsplit/', views.Jsonsplit),
-    url('^databasecon', views.Databasecon),
-    url('^imagedb', views.imageDB),
+    url(r'^databasecon', views.Databasecon),
+    url(r'^imageprocessfun', views.imageprocessfun),
 ]
