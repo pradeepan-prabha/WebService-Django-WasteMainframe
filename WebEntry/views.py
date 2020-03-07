@@ -123,6 +123,13 @@ def Databasecon(data):
         return Response(e.args[0], status.HTTP_400_BAD_REQUEST)
 
 
+def raw_img_to_covert_processed_img(key, raw_img_path, processed_img_path):
+    print("****Key=" + key)
+    print("****rawImgPath=" + raw_img_path)
+    print("****processedImgPath=" + processed_img_path)
+    return key, processed_img_path + "img6667476.jpg"
+
+
 @api_view(["POST"])
 def imageprocessfun(data1):
     try:
@@ -181,7 +188,7 @@ def imageprocessfun(data1):
 
         ts = time.time()
         timestamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S')
-        img_raw_val = imageProcess(img_raw_val, timestamp)
+        img_raw_val = ImageConvertion(img_raw_val, timestamp)
 
         # Open database connection
         db = pymysql.connect("localhost", "root", "", "waste_mainframe_db")
@@ -212,6 +219,10 @@ def imageprocessfun(data1):
                 else:
                     refid_val = row[0] + 1
 
+            print("*** Convert Raw image to  Processed image************")
+
+
+
             cursor.execute(sql_waste_details, (
                 str(refid_val), str(waste_type_val), str(loc_type_val), str(img_raw_val),
                 str(timestamp), str(waste_char_val), str(waste_shape_val), str(waste_status_val), str(waste_fun_status),
@@ -227,6 +238,20 @@ def imageprocessfun(data1):
             # print(sql_product_details)
             # Commit your changes in the database
             db.commit()
+
+            #     Convert Raw image to  Processed image
+            returnkey, returnprocessedImgPath = raw_img_to_covert_processed_img(str(refid_val),
+                                                                                "WasteRawImage" + str(img_raw_val),
+                                                                                "'\'WasteProcessedImage'\'")
+            print("***returnkey=" + returnkey)
+            print("***returnprocessedImgPath=" + returnprocessedImgPath)
+
+            update_query = "UPDATE waste_details SET img_processed_url  = %s WHERE refid  = %s"
+            update_query_input = (returnprocessedImgPath, returnkey)
+            cursor.execute(update_query, update_query_input)
+
+
+
         except:
             print("**************Rollback***************")
 
@@ -256,7 +281,7 @@ def imageprocessfun(data1):
             ({"statustype": "Failure", "statusmessage": "Submited data is failure", "statuscode": "400"}), safe=False)
 
 
-def imageProcess(img_base_64, timestamp):
+def ImageConvertion(img_base_64, timestamp):
     from django.core.files.base import ContentFile
     # format, imgstr = str(img_base_64).split(';base64,')
     imgstr = str(img_base_64)
